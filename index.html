@@ -407,29 +407,19 @@
       let sunset = weather.sys.sunset
       let ssd = new Date(sunset * 1000)
       let srd = new Date(sunrise * 1000)
-      // console.log(`${srd.getHours()}:${srd.getMinutes()}    ${ssd.getHours()}:${ssd.getMinutes()}`);
-      // console.log(`dt: ${dt}  sr: ${sunrise}  ss: ${sunset}`);
+
 
       let positionPercentage
 
       let time = new Date(weather.dt * 1000)
       let hrs = time.getHours()
       let daytime = sunrise < dt && dt < sunset ? true : false
-      // console.log(`daytime: ${daytime}`);
-      // let cd = spriteData.frames.find((sprite) => sprite.filename === 'smallCloud1.png')
 
 
 
       let sun = spriteData.frames.find((sprite) => sprite.filename === 'sun.png')
       let moon = spriteData.frames.find((sprite) => sprite.filename === 'moon.png')
 
-      // let sd = spriteData.frames.find((sprite) => sprite.filename === 'flakeDayTime.png')
-
-      // let m = spriteData.frames.find((sprite) => sprite.filename === 'mist.png')
-
-      // let rd = spriteData.frames.find((sprite) => sprite.filename === 'rainDay.png')
-
-      // let lights = spriteData.frames.find((sprite) => sprite.filename === 'lightning.png')
 
       let sky = spriteData.frames.find((sprite) => sprite.filename === 'background.png')
 
@@ -466,11 +456,7 @@
         sunMoonSx, sunMoonSy, 100, 100,
         positionPercentage * cw, dy, 100, 100 //destination coords dest x,y,w,h
       )
-      // context.drawImage(
-      //   atlas,
-      //   lightSx, lightSy, 100, 100,
-      //   positionPercentage * cw, dy, 100, 100
-      // )
+
 
       let wind = Math.round(weather.wind.speed) * 0.03
 
@@ -480,7 +466,6 @@
       snowCount = 0
       mistCount = 0
       lightCount = 0
-      // let mistWeather = false
       let weatherCode = "11"
       // let weatherCode = weather.weather[0].icon.substring(0, 2)
       switch (weatherCode) {
@@ -529,11 +514,9 @@
           cloudCount = 0
       }
       for (var i = 0; i < cloudCount; i++) {
-        // console.log(clouds[i].sx);
-        // clouds[i]. vy =0 //wind
+
         clouds[i].vx = wind //wind
         clouds[i].update()
-        // clouds[i].display() //not doing much since it is not animating
         if (!daytime) {
           let cn = spriteData.frames.find((sprite) => sprite.filename === 'smallCloud2.png')
           clouds[i].sx = cn.frame.x
@@ -548,10 +531,8 @@
       }
       //rain
       for (var i = 0; i < rainCount; i++) {
-        // console.log(rain[i].sx);
         rains[i].vy = 2
         rains[i].update()
-        // rain[i].display() //not doing much since it is not animating
         if (!daytime) {
           let rn = spriteData.frames.find((sprite) => sprite.filename === 'rainNight.png')
           rains[i].sx = rn.frame.x
@@ -567,11 +548,8 @@
 
       // snow
       for (var i = 0; i < snowCount; i++) {
-        // console.log(rain[i].sx);
         snows[i].vy = 0.3
-        // snows[i].dx += Math.random() - 0.5
         snows[i].update()
-        // snow[i].display() //not doing much since it is not animating
         if (!daytime) {
           let sn = spriteData.frames.find((sprite) => sprite.filename === 'flakeNight1.png')
           snows[i].sx = sn.frame.x
@@ -586,15 +564,9 @@
       }
       // mist
       for (var i = 0; i < mistCount; i++) {
-        // console.log(i);
         mists[i].vy = 0.1
         mists[i].update()
-        // mist[i].display() //not doing much since it is not animating
-        // if (!daytime) {
-        //   let m = spriteData.frames.find((sprite) => sprite.filename === 'mist.png')
-        //   mists[i].sx = m.frame.x
-        //   mists[i].sy = m.frame.y
-        // }
+
         //draw mist
         context.drawImage(
           atlas,
@@ -604,16 +576,9 @@
       }
       // //DRAW light
       for (var i = 0; i < lightCount; i++) {
-        // console.log(light[i].sx);
-        // lights[i].update()
-        // lights[i].vx = 0
-        lights[i].vy = 0
-        // lights[i].update()
+      lights[i].vy = 0
         lights[i].display() //not doing much since it is not animating
-        // if (!daytime) {
-        //   light[i].sx = l.frame.x
-        //   light[i].sy = l.frame.y
-        // }
+        
         //draw mist
         context.drawImage(
           atlas,
