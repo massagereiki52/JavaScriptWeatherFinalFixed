@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Weather App js</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Indie+Flower|Permanent+Marker&display=swap');
+  </style>
+  <style media="screen">
+    body {
+      position: relative;
+
+      background: url(background2.jpg) no-repeat center center fixed;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+    }
+
+    #canvas1 {
+      width: 900px;
+      height: 200px;
+      background-color: rgb(154, 109, 170);
+      /* position: fixed; */
+      z-index: -1;
+      /* top: 1em; */
+      display: block;
+      /*clear: both;*/
+      margin: 1em auto;
+      border: 1px #4d4dff;
+    }
+
+    .weather {
+      width: 800px;
+      margin: 1em auto;
+      font-family: 'Josefin Sans', sans-serif;
+      /*font-weight: bolder;*/
+      font-size: 1.5em;
+      text-align: center;
+      color: white;
+      -webkit-text-stroke-width: .5px;
+      -webkit-text-stroke-color: #4d4dff;
+      /*margin-right: 5px;*/
+    }
+
+    .title {
+      width: 800px;
+      margin: 1em auto;
+      font-family: 'Indie Flower', cursive;
+      font-weight: bolder;
+      font-size: 9em;
+      text-align: justify;
+      -webkit-text-stroke-width: .5px;
+      -webkit-text-stroke-color: blue;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- <p class="icon"></p> -->
+  <p class="title">Weather App</p>
+  <!-- <p class="weather"></p> -->
+  <canvas id="canvas1" width="900" height="200"></canvas>
+  <p class="weather"></p>
+  <script src="weatherAPIkey.js" charset="utf-8"></script>
+  <script type="text/javascript">
+    // document.body.style.zoom=2.0
+    //https://codebeautify.org/jsonviewer
+    //httpssun://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
+    // https://openweathermap.org/weather-conditions
+    // let lat=45, lon=-93
+
+    let SpriteFrame = {
+      x: 0,
+      y: 0,
+      w: 0,
+      h: 0
+    } //end SpriteFrame
+    //
+    let Sprite = {
+      sx: 0,
+      sy: 0,
+      dx: 0,
+      dy: 0,
+      spriteW: 0,
+      spriteH: 0,
+      vx: 0,
+      vy: 0,
+      currentFrame: 0,
+      frames: 1,
+      frameSprites: [],
+      increment: 0,
+      animationSpeed: 1,
+
+      update: function() {
+        this.dx += this.vx
+        if (this.dx > canvas.width) {
+          this.dx = -this.spriteW
+        }
+        this.dy += this.vy
+        if (this.dy > canvas.height) {
+          this.dy = -this.spriteH
+        } //end if this.dy
+      }, //end update function
+      increment: 0,
+      animationSpeed: 3,
+      display: function() {
+        if (this.frameSprites.length > 0) {
+          this.sx = this.frameSprites[this.currentFrame].x
+          this.sy = this.frameSprites[this.currentFrame].y
+          this.spriteW = this.frameSprites[this.currentFrame].w
+          this.spriteH = this.frameSprites[this.currentFrame].h
+          this.increment = (this.increment + 1) % this.animationSpeed
+          if (this.increment === 0) {
+            this.currentFrame = (this.currentFrame + 1) % this.frames
+          } //end if increment
+        } //end if frameSrites.length
+      } //end display function
+    } // end let Sprite
+    //
+    // //atlas
+    const atlas = new Image()
+    atlas.src = "textureAtlas2.png"
+    //
+    const imageAssetCount = 1
+    let imagesLoaded = 0
+    atlas.addEventListener('load', imageLoadHandler, false)
+    //
+    function imageLoadHandler() {
+      imagesLoaded++
+      if (imagesLoaded === imageAssetCount) {
+        //     ////move to next activity
+        xhrSprites.send()
+      } //end if statement for imageLoadHandler
+    } //end imageLoadHandler
+    //
+    //
+    // //load atlas json
+    let spriteData = {}
+    let xhrSprites = new XMLHttpRequest()
+    xhrSprites.open("GET", 'textureAtlas2.json')
+    xhrSprites.responseType = 'text'
+    xhrSprites.onload = event => {
+      if (xhrSprites.status === 200) {
+        spriteData = JSON.parse(xhrSprites.responseText)
+        createSprites()
+      } else {
+        console.log("Error code: " + xhrSprites.status);
+      } //end else
+    } //end onload
+    // xhrSprites.send()
+
+    //objects
+    let sun = Object.create(SpriteFrame)
+    let moon = Object.create(SpriteFrame)
+    let cloud = Object.create(SpriteFrame)
+    let rain = Object.create(SpriteFrame)
+    let snow = Object.create(SpriteFrame)
+    let mist = Object.create(SpriteFrame)
+    let sky = Object.create(SpriteFrame)
+    let light = Object.create(SpriteFrame)
+
+
+    //arrays
+    //arrays clouds
+    let clouds = []
+    let numClouds = 1000
+
+    //arrays rain
+    let rains = []
+    let numRain = 1000
+
+    // arrays snow
+    let snows = []
+    let numSnow = 1000
+
+    let mists = []
+    let numMist = 1000
+
+    let lights = []
+    let numLight = 1000
+    //
+    function createSprites() {
+      //sky
+      let skyArt = spriteData.frames.find((sprite) => sprite.filename === 'background.png')
+      sky.sx = skyArt.frame.x
+      sky.sy = skyArt.frame.y
+      sky.spriteW = skyArt.frame.w
+      sky.spriteH = skyArt.frame.h
+      console.log('background')
+
+
+      // sun
+      let sunArt = spriteData.frames.find((sprite) => sprite.filename === 'sun.png')
+      sun.sx = sunArt.frame.x
+      sun.sy = sunArt.frame.y
+      sun.spriteW = sunArt.frame.w
+      sun.spriteH = sunArt.frame.h
+      console.log('sun')
+
+
+      //moon
+      let moonArt = spriteData.frames.find((sprite) => sprite.filename === 'moon.png')
+      moon.sx = moonArt.frame.x
+      moon.sy = moonArt.frame.y
+      moon.spriteW = moonArt.frame.w
+      moon.spriteH = moonArt.frame.h
+      console.log('moon')
+
+      // //lightning
+      // let lightArt = spriteData.frames.find((sprite) => sprite.filename === 'moon.png')
+      // light.sx = lightArt.frame.x
+      // light.sy = lightArt.frame.y
+      // light.spriteW = lightArt.frame.w
+      // light.spriteH = lightArt.frame.h
+      // console.log('light')
+
+      //clouds
+      let cd = spriteData.frames.find((sprite) => sprite.filename === 'smallCloud1.png')
+
+      for (var i = 0; i < numClouds; i++) {
+        clouds[i] = Object.create(Sprite)
+        clouds[i].sx = cd.frame.x
+        clouds[i].sy = cd.frame.y
+        clouds[i].offsetX = cd.frame.x
+        clouds[i].offsetY = cd.frame.y
+        clouds[i].dx = Math.random() * (canvas.width + 200) - 100
+        clouds[i].dy = Math.random() * (canvas.height + 200) - 100
+        clouds[i].spriteW = cd.frame.w
+        clouds[i].spriteH = cd.frame.h - 1
+        clouds[i].vx = 0.5
+        clouds[i].vy = 0
+      } //end for cloud Day
+
+
+      // Rain
+
+      let rd = spriteData.frames.find((sprite) => sprite.filename === 'rainDay.png')
+
+      for (var i = 0; i < numRain; i++) {
+        rains[i] = Object.create(Sprite)
+        rains[i].sx = rd.frame.x
+        rains[i].sy = rd.frame.y
+        rains[i].offsetX = rd.frame.x
+        rains[i].offsetY = rd.frame.y
+        rains[i].dx = Math.random() * canvas.width
+        rains[i].dy = Math.random() * (canvas.height + 100) - 100
+        rains[i].spriteW = rd.frame.w
+        rains[i].spriteH = rd.frame.h
+        rains[i].vx = 0
+        rains[i].vy = 0.5
+      } //end for rain day
+
+
+
+      //SNOW
+      let sd = spriteData.frames.find((sprite) => sprite.filename === 'flakeDayTime.png')
+
+      for (var i = 0; i < numSnow; i++) {
+        snows[i] = Object.create(Sprite)
+        snows[i].sx = sd.frame.x
+        snows[i].sy = sd.frame.y
+        snows[i].offsetdX = sd.frame.x
+        snows[i].offsetY = sd.frame.y
+        snows[i].dx = Math.random() * canvas.width
+        snows[i].dy = Math.random() * (canvas.height + 100) - 100
+        snows[i].spriteW = sd.frame.w
+        snows[i].spriteH = sd.frame.h
+        snows[i].vx = 0
+        snows[i].vy = 0.3
+      } // end for snow day
+
+      // Mist
+      let m = spriteData.frames.find((sprite) => sprite.filename === 'mist.png')
+
+      for (var i = 0; i < numMist; i++) {
+        mists[i] = Object.create(Sprite)
+        mists[i].sx = m.frame.x
+        mists[i].sy = m.frame.y
+        mists[i].offsetX = m.frame.x
+        mists[i].offsetY = m.frame.y
+        mists[i].dx = Math.random() * canvas.width
+        mists[i].dy = Math.random() * (canvas.height + 100) - 100
+        mists[i].spriteW = m.frame.w
+        mists[i].spriteH = m.frame.h
+        mists[i].vx = 0
+        mists[i].vy = 0.5
+      } // end for mist
+      let l = spriteData.frames.find((sprite) => sprite.filename === 'lightning.png')
+
+      for (var i = 0; i < numLight; i++) {
+        lights[i] = Object.create(Sprite)
+        lights[i].sx = l.frame.x
+        lights[i].sy = l.frame.y
+        lights[i].offsetX = l.frame.x
+        lights[i].offsetY = l.frame.y
+        lights[i].dx = Math.random() * canvas.width
+        lights[i].dy = 50 //Math.random() * (canvas.height - l.frame.h)
+        lights[i].spriteW = l.frame.w
+        lights[i].spriteH = l.frame.h
+        lights[i].vx = 0
+        lights[i].vy = 0
+      } // end for light
+      // xhr.send()
+    } // end createSprites
+    // console.log(lights);
+    //
+    //
+    //
+    // //use the load callback to load the file BEFORE calling the JSON server API
+    let lat = 28
+    let lon = 84.633331
+    let p = document.querySelector('p.weather')
+    //
+    // //empty object to hold the JSON data
+    let weather = {};
+    // //create the new xhr object
+    let xhr = new XMLHttpRequest();
+    // //use XHR to get the json data from the server
+    xhr.open("GET", `https://api.openweathermap.org/data/2.5/weather?zip=55129,us&appid=${apiKey}&units=imperial`, true);
+    // xhr.open("GET", `https://api.openweathermap.org/data/2.5/weather?lat=45.0959889&lon=-93.3974557&appid=${apiKey}&units=imperial`, true);
+    // //set the xhr type
+    xhr.responseType = 'text';
+    //
+    function test() {
+      console.log("test success");
+    }
+    // //use the onload event to verify loading or provide the error response
+    xhr.onload = event => {
+      //verify the data has loaded properly.
+      //200 is success
+      if (xhr.status === 200) {
+        //Copy the JSON file into the weather variable
+        weather = JSON.parse(xhr.responseText)
+        console.log("JSON data loaded")
+        console.log(weather)
+
+        console.log(weather.weather[0].icon);
+        //Now you can use this data to view the library contents
+        // console.log(weather.list[10].main.temp)
+        p.textContent = weather.weather[0].description
+
+        let str = ""
+        let location = weather.name
+        let temp = Math.round(weather.main.temp)
+        let wind = Math.round(weather.wind.speed)
+        let time = new Date(weather.dt * 1000)
+        let hrs = time.getHours()
+        let minutes = time.getMinutes()
+        if (minutes < 10) {
+          minutes = `0${minutes}`
+        }
+        let timeString = ""
+        if (hrs == 12) {
+          timeString = `12:${minutes} PM`
+        } else if (hrs > 12) {
+          timeString = `${hrs-12}:${minutes} PM`
+        } else if (hrs == 0) {
+          timeString = `12:${minutes} AM`
+        } else {
+          timeString = `${hrs}:${minutes} AM`
+        }
+        str = `${location}  ${temp}&#0176;  wind: ${wind}mph<br>${time}<br>${timeString}`
+        //sun location will be percent of canvas between sunrise/sunset
+        //sunrise is 10%height. peak is 90%height
+        p.innerHTML = str
+        // console.log("substring: " + weather.weather[0].icon.substring(0,2));
+        plot()
+      } else {
+        p.textContent = "Error code: " + xhr.status
+      }
+    }
+    //
+
+    // //Send the request to load the file
+    xhr.send();
+    //
+    const canvas = document.querySelector('#canvas1')
+    const context = canvas.getContext('2d')
+    canvas.width = 900; //horizontal resolution (?) - increase for better looking text
+    canvas.height = 200; //vertical resolution (?) - increase for better looking text
+    canvas.style.width = 900; //actual width of canvas
+    canvas.style.height = 200; //actual height of canvas
+    let cw = canvas.width - 100
+    let ch = canvas.height - 100
+    //
+    let xpos = -100
+    //
+    function plot() {
+      context.clearRect(0, 0, cw, ch)
+      context.textAlign = "center"
+      //   //draw background grid
+      for (var i = 0; i < 10; i++) {
+        if (i % 2 == 0) {
+          context.fillStyle = 'rgba(0,0,255,0.6)'
+        } else {
+          context.fillStyle = 'rgba(245, 111, 111, 0.9)'
+        }
+        context.fillRect(i * canvas.width / 10, 0, 1, canvas.height)
+        context.fillRect(0, i * canvas.height / 10, canvas.width, 1)
+      }
+      let dt = 1558575700
+      // let dt = weather.dt
+      let sunrise = weather.sys.sunrise
+      let sunset = weather.sys.sunset
+      let ssd = new Date(sunset * 1000)
+      let srd = new Date(sunrise * 1000)
+      // console.log(`${srd.getHours()}:${srd.getMinutes()}    ${ssd.getHours()}:${ssd.getMinutes()}`);
+      // console.log(`dt: ${dt}  sr: ${sunrise}  ss: ${sunset}`);
+
+      let positionPercentage
+
+      let time = new Date(weather.dt * 1000)
+      let hrs = time.getHours()
+      let daytime = sunrise < dt && dt < sunset ? true : false
+      // console.log(`daytime: ${daytime}`);
+      // let cd = spriteData.frames.find((sprite) => sprite.filename === 'smallCloud1.png')
+
+
+
+      let sun = spriteData.frames.find((sprite) => sprite.filename === 'sun.png')
+      let moon = spriteData.frames.find((sprite) => sprite.filename === 'moon.png')
+
+      // let sd = spriteData.frames.find((sprite) => sprite.filename === 'flakeDayTime.png')
+
+      // let m = spriteData.frames.find((sprite) => sprite.filename === 'mist.png')
+
+      // let rd = spriteData.frames.find((sprite) => sprite.filename === 'rainDay.png')
+
+      // let lights = spriteData.frames.find((sprite) => sprite.filename === 'lightning.png')
+
+      let sky = spriteData.frames.find((sprite) => sprite.filename === 'background.png')
+
+      let skySx, sunMoonSx, sunMoonSy, lightSx, lightSy,
+        skySy = sky.frame.y
+
+      if (daytime) {
+        skySx = sky.frame.x
+        sunMoonSx = sun.frame.x
+        sunMoonSy = sun.frame.y
+
+
+        positionPercentage = (dt - sunrise) / (sunset - sunrise)
+      } else {
+        skySx = sky.frame.x + 900
+        sunMoonSx = moon.frame.x
+        sunMoonSy = moon.frame.y
+
+        positionPercentage = (dt - sunset) / (sunset - sunrise)
+      }
+      //update sun position based on time vs sunrise/sunset
+      let dy = positionPercentage < 0.5 ? ch - positionPercentage * ch * 2 : 2 * (positionPercentage - 0.5) * ch
+
+      //draw sky
+      context.drawImage(
+        atlas,
+        skySx, skySy, 900, 200,
+        0, 0, 900, 200
+      )
+
+      // draw sunMoon
+      context.drawImage(
+        atlas,
+        sunMoonSx, sunMoonSy, 100, 100,
+        positionPercentage * cw, dy, 100, 100 //destination coords dest x,y,w,h
+      )
+      // context.drawImage(
+      //   atlas,
+      //   lightSx, lightSy, 100, 100,
+      //   positionPercentage * cw, dy, 100, 100
+      // )
+
+      let wind = Math.round(weather.wind.speed) * 0.03
+
+      //draw the
+      cloudCount = 0
+      rainCount = 0
+      snowCount = 0
+      mistCount = 0
+      lightCount = 0
+      // let mistWeather = false
+      let weatherCode = "11"
+      // let weatherCode = weather.weather[0].icon.substring(0, 2)
+      switch (weatherCode) {
+        case "01":
+          // clear sky
+          cloudCount = 0
+          break;
+        case "02":
+          //few clouds
+          cloudCount = 10
+          break;
+        case "03":
+          // scattered clouds
+          cloudCount = 40
+          break;
+        case "04":
+          //broken clouds
+          cloudCount = 60
+          break;
+        case "09":
+          //rain showers
+          cloudCount = 100
+          rainCount = 200
+          break;
+        case "10":
+          //rain
+          cloudCount = 200
+          rainCount = 1000
+          break;
+        case "11":
+          //thunderstorm
+          cloudCount = 200
+          lightCount = 5
+          break;
+        case "13":
+          //snow
+          cloudCount = 100
+          snowCount = 200
+          break;
+        case "50":
+          //mist
+          // cloudCount = 0
+          mistCount = 1000
+          break;
+        default:
+          cloudCount = 0
+      }
+      for (var i = 0; i < cloudCount; i++) {
+        // console.log(clouds[i].sx);
+        // clouds[i]. vy =0 //wind
+        clouds[i].vx = wind //wind
+        clouds[i].update()
+        // clouds[i].display() //not doing much since it is not animating
+        if (!daytime) {
+          let cn = spriteData.frames.find((sprite) => sprite.filename === 'smallCloud2.png')
+          clouds[i].sx = cn.frame.x
+          clouds[i].sy = cn.frame.y
+        }
+        //draw cloud
+        context.drawImage(
+          atlas,
+          clouds[i].sx, clouds[i].sy, clouds[i].spriteW, clouds[i].spriteH,
+          clouds[i].dx, clouds[i].dy, clouds[i].spriteW, clouds[i].spriteH
+        )
+      }
+      //rain
+      for (var i = 0; i < rainCount; i++) {
+        // console.log(rain[i].sx);
+        rains[i].vy = 2
+        rains[i].update()
+        // rain[i].display() //not doing much since it is not animating
+        if (!daytime) {
+          let rn = spriteData.frames.find((sprite) => sprite.filename === 'rainNight.png')
+          rains[i].sx = rn.frame.x
+          rains[i].sy = rn.frame.y
+        }
+        //draw rain
+        context.drawImage(
+          atlas,
+          rains[i].sx, rains[i].sy, rains[i].spriteW, rains[i].spriteH,
+          rains[i].dx, rains[i].dy, (rains[i].spriteW / 10), (rains[i].spriteH / 10)
+        )
+      }
+
+      // snow
+      for (var i = 0; i < snowCount; i++) {
+        // console.log(rain[i].sx);
+        snows[i].vy = 0.3
+        // snows[i].dx += Math.random() - 0.5
+        snows[i].update()
+        // snow[i].display() //not doing much since it is not animating
+        if (!daytime) {
+          let sn = spriteData.frames.find((sprite) => sprite.filename === 'flakeNight1.png')
+          snows[i].sx = sn.frame.x
+          snows[i].sy = sn.frame.y
+        }
+        //draw snow
+        context.drawImage(
+          atlas,
+          snows[i].sx, snows[i].sy, snows[i].spriteW, snows[i].spriteH,
+          snows[i].dx, snows[i].dy, snows[i].spriteW, snows[i].spriteH
+        )
+      }
+      // mist
+      for (var i = 0; i < mistCount; i++) {
+        // console.log(i);
+        mists[i].vy = 0.1
+        mists[i].update()
+        // mist[i].display() //not doing much since it is not animating
+        // if (!daytime) {
+        //   let m = spriteData.frames.find((sprite) => sprite.filename === 'mist.png')
+        //   mists[i].sx = m.frame.x
+        //   mists[i].sy = m.frame.y
+        // }
+        //draw mist
+        context.drawImage(
+          atlas,
+          mists[i].sx, mists[i].sy, mists[i].spriteW, mists[i].spriteH,
+          mists[i].dx, mists[i].dy, mists[i].spriteW, mists[i].spriteH
+        )
+      }
+      // //DRAW light
+      for (var i = 0; i < lightCount; i++) {
+        // console.log(light[i].sx);
+        // lights[i].update()
+        // lights[i].vx = 0
+        lights[i].vy = 0
+        // lights[i].update()
+        lights[i].display() //not doing much since it is not animating
+        // if (!daytime) {
+        //   light[i].sx = l.frame.x
+        //   light[i].sy = l.frame.y
+        // }
+        //draw mist
+        context.drawImage(
+          atlas,
+          lights[i].sx, lights[i].sy, lights[i].spriteW, lights[i].spriteH,
+          lights[i].dx, lights[i].dy, lights[i].spriteW, lights[i].spriteH
+        )
+      }
+
+      requestAnimationFrame(plot)
+
+    }
+  </script>
+</body>
+
+</html>
