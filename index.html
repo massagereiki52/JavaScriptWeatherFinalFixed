@@ -401,8 +401,8 @@
         context.fillRect(i * canvas.width / 10, 0, 1, canvas.height)
         context.fillRect(0, i * canvas.height / 10, canvas.width, 1)
       }
-      let dt = 1558575700
-      // let dt = weather.dt
+      // let dt = 1558575700
+      let dt = weather.dt
       let sunrise = weather.sys.sunrise
       let sunset = weather.sys.sunset
       let ssd = new Date(sunset * 1000)
@@ -466,8 +466,8 @@
       snowCount = 0
       mistCount = 0
       lightCount = 0
-      let weatherCode = "11"
-      // let weatherCode = weather.weather[0].icon.substring(0, 2)
+      // let weatherCode = "13"
+      let weatherCode = weather.weather[0].icon.substring(0, 2)
       switch (weatherCode) {
         case "01":
           // clear sky
@@ -578,7 +578,7 @@
       for (var i = 0; i < lightCount; i++) {
       lights[i].vy = 0
         lights[i].display() //not doing much since it is not animating
-        
+
         //draw mist
         context.drawImage(
           atlas,
