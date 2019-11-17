@@ -2,76 +2,34 @@
 <html lang="en" dir="ltr">
 
 <head>
+  <!-- meta -->
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weather App js</title>
+  <!-- css -->
+  <link rel="stylesheet" href="style.css">
 
-  <style>
-    @import url('https://fonts.googleapis.com/css?family=Indie+Flower|Permanent+Marker&display=swap');
-  </style>
-  <style media="screen">
-    body {
-      position: relative;
-
-      background: url(background2.jpg) no-repeat center center fixed;
-      -webkit-background-size: cover;
-      -moz-background-size: cover;
-      -o-background-size: cover;
-      background-size: cover;
-    }
-
-    #canvas1 {
-      width: 900px;
-      height: 200px;
-      background-color: rgb(154, 109, 170);
-      /* position: fixed; */
-      z-index: -1;
-      /* top: 1em; */
-      display: block;
-      /*clear: both;*/
-      margin: 1em auto;
-      border: 1px #4d4dff;
-    }
-
-    .weather {
-      width: 800px;
-      margin: 1em auto;
-      font-family: 'Josefin Sans', sans-serif;
-      /*font-weight: bolder;*/
-      font-size: 1.5em;
-      text-align: center;
-      color: white;
-      -webkit-text-stroke-width: .5px;
-      -webkit-text-stroke-color: #4d4dff;
-      /*margin-right: 5px;*/
-    }
-
-    .title {
-      width: 800px;
-      margin: 1em auto;
-      font-family: 'Indie Flower', cursive;
-      font-weight: bolder;
-      font-size: 9em;
-      text-align: justify;
-      -webkit-text-stroke-width: .5px;
-      -webkit-text-stroke-color: blue;
-    }
-  </style>
 </head>
 
 <body>
-  <!-- <p class="icon"></p> -->
-  <p class="title">Weather App</p>
-  <!-- <p class="weather"></p> -->
-  <canvas id="canvas1" width="900" height="200"></canvas>
-  <p class="weather"></p>
+
+
+  <div class="background">
+
+  <h1 class="title">Weather Application</h1>
+
+    <canvas id="canvas1" width="900" height="200"></canvas>
+
+    <p class="weather"></p>
+    <p class="weather weather2">The Weather Applications is a handy tool. It assists a wide range of professionals, from construction workers to air traffic controllers. It can even help the individual with all of their weather needs. </p>
+
+    <div class="footer weather title">
+      <footer>&copy;2019 Danelle VanVleet</footer>
+    </div>
+    <p class="weather"></p>
+  </div>
   <script src="weatherAPIkey.js" charset="utf-8"></script>
   <script type="text/javascript">
-    // document.body.style.zoom=2.0
-    //https://codebeautify.org/jsonviewer
-    //httpssun://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
-    // https://openweathermap.org/weather-conditions
-    // let lat=45, lon=-93
-
     let SpriteFrame = {
       x: 0,
       y: 0,
@@ -576,7 +534,7 @@
       }
       // //DRAW light
       for (var i = 0; i < lightCount; i++) {
-      lights[i].vy = 0
+        lights[i].vy = 0
         lights[i].display() //not doing much since it is not animating
 
         //draw mist
